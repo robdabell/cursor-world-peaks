@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PeakCard } from "@/components/PeakCard";
 import { PeakMap } from "@/components/PeakMap";
 import { CONTINENTS, formatMetres } from "@/lib/geo";
@@ -24,6 +24,15 @@ export function PeakBrowser({
   const [continent, setContinent] = useState<Continent | "all">("all");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<View>("sheet");
+
+  useEffect(() => {
+    if (view !== "map") return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("peak-map")?.scrollIntoView({
+      behavior: reduce ? "instant" : "smooth",
+      block: "start",
+    });
+  }, [view]);
 
   const visible = useMemo(() => {
     if (!peaks) return undefined;
@@ -159,7 +168,8 @@ export function PeakBrowser({
           <div className="px-5 py-6 sm:px-8">
             <PeakMap peaks={visible} />
             <p className="mt-3 font-mono text-[11px] text-[var(--rd-muted)]">
-              Dot size scales with elevation. Yellow marks the open summit.
+              Equirectangular land from Natural Earth. Dot size scales with
+              elevation; yellow marks the open summit.
             </p>
           </div>
         ) : (
